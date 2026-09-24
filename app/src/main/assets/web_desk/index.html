@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="my" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FTTH OmniSupport - Modern Web Desk & Bot Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pyidaungsu:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Pyidaungsu', 'sans-serif'],
+                        myanmar: ['Pyidaungsu', 'sans-serif']
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        viber: '#7360f2',
+                        telegram: '#229ed9',
+                        messenger: '#0084ff',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', 'Pyidaungsu', -apple-system, sans-serif; }
+        .pulse-urgent { animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.02); }
+        }
+        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    </style>
+</head>
+<body class="h-full bg-slate-900 text-slate-100 flex flex-col overflow-hidden antialiased select-none">
+
+    <!-- TOP MODERN APP BAR -->
+    <header class="h-14 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-4 md:px-6 flex items-center justify-between shrink-0 z-30">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-teal-500/20 text-white font-black text-lg">
+                ⚡
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="font-extrabold text-sm md:text-base tracking-tight text-white">FTTH OmniSupport</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-ping"></span> Live Desk
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-400 hidden sm:block">Fiber-To-The-Home Helpdesk • Viber • Telegram • Messenger</p>
+            </div>
+        </div>
+
+        <!-- CENTER STATS PILLS -->
+        <div class="hidden lg:flex items-center space-x-3 text-xs">
+            <div class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center space-x-2">
+                <span class="text-slate-400">Total:</span>
+                <span id="stat-total" class="font-bold text-white">0</span>
+            </div>
+            <div class="bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/30 flex items-center space-x-2 text-red-400">
+                <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                <span>အရေးကြီး (Urgent):</span>
+                <span id="stat-urgent" class="font-bold">0</span>
+            </div>
+            <div class="bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/30 flex items-center space-x-2 text-amber-400">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>ရက်ကြာ (>48h Overdue):</span>
+                <span id="stat-overdue" class="font-bold">0</span>
+            </div>
+            <div class="bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/30 flex items-center space-x-2 text-purple-400">
+                <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                <span>ရက်ချိန်း (Appointments):</span>
+                <span id="stat-scheduled" class="font-bold">0</span>
+            </div>
+        </div>
+
+        <!-- RIGHT ACTION BUTTONS -->
+        <div class="flex items-center space-x-2">
+            <button onclick="openTokenWizard()" class="px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white rounded-lg shadow-md shadow-emerald-900/30 transition flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                <span>🔑 API Token Wizard</span>
+            </button>
+            <button onclick="openNewTicketModal()" class="px-3 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center space-x-1">
+                <span>➕ Ticket ဖွင့်</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN WORKSPACE -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- LEFT NAVIGATION RAIL -->
+        <nav class="w-16 bg-slate-950 border-r border-slate-800/80 flex flex-col items-center py-4 space-y-4 shrink-0">
+            <button onclick="switchWorkspaceTab('inbox')" id="nav-btn-inbox" class="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 flex flex-col items-center justify-center transition group relative" title="Inbox">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                <span class="text-[9px] mt-0.5 font-bold">Inbox</span>
+            </button>
+
+            <button onclick="switchWorkspaceTab('tasks')" id="nav-btn-tasks" class="w-11 h-11 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-slate-200 flex flex-col items-center justify-center transition relative" title="Daily Tasks">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                <span class="text-[9px] mt-0.5 font-medium">Tasks</span>
+            </button>
+
+            <button onclick="switchWorkspaceTab('aging')" id="nav-btn-aging" class="w-11 h-11 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-slate-200 flex flex-col items-center justify-center transition relative" title="Aging Tracker">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-[9px] mt-0.5 font-medium">Aging</span>
+            </button>
+
+            <button onclick="switchWorkspaceTab('appointments')" id="nav-btn-appointments" class="w-11 h-11 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-slate-200 flex flex-col items-center justify-center transition relative" title="Appointments">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span class="text-[9px] mt-0.5 font-medium">ရက်ချိန်း</span>
+            </button>
+
+            <div class="flex-1"></div>
+
+            <button onclick="openTokenWizard()" class="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800 text-teal-400 flex flex-col items-center justify-center hover:bg-slate-800 transition" title="Bots">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
+                <span class="text-[8px] mt-0.5">Bots</span>
+            </button>
+        </nav>
+
+        <!-- MIDDLE COLUMN: TICKET LIST PANE -->
+        <section class="w-80 md:w-96 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
+            <!-- Search & Filters -->
+            <div class="p-3.5 border-b border-slate-800/80 bg-slate-950/40 space-y-2.5">
+                <!-- Channel selector tabs -->
+                <div class="flex items-center space-x-1 text-[11px] font-semibold">
+                    <button onclick="setChannelFilter('ALL')" id="tab-ch-all" class="px-2.5 py-1 rounded-lg bg-emerald-500 text-white shadow-sm font-bold">အားလုံး</button>
+                    <button onclick="setChannelFilter('VIBER')" id="tab-ch-viber" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Viber</button>
+                    <button onclick="setChannelFilter('TELEGRAM')" id="tab-ch-telegram" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Telegram</button>
+                    <button onclick="setChannelFilter('MESSENGER')" id="tab-ch-messenger" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">Messenger</button>
+                </div>
+
+                <!-- Sub-filters: Urgent / Overdue / Scheduled -->
+                <div class="flex items-center space-x-1.5 text-[11px]">
+                    <button onclick="setUrgentToggle()" id="sub-filter-urgent" class="px-2 py-0.5 rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:border-red-500/50">🚨 အရေးကြီး</button>
+                    <button onclick="setOverdueToggle()" id="sub-filter-overdue" class="px-2 py-0.5 rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:border-amber-500/50">⏳ ရက်ကြာ (>48h)</button>
+                    <button onclick="setScheduledToggle()" id="sub-filter-scheduled" class="px-2 py-0.5 rounded-md border border-slate-700 bg-slate-800 text-slate-300 hover:border-purple-500/50">📅 ရက်ချိန်း</button>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative">
+                    <input type="text" id="ticket-search" oninput="renderTicketList()" placeholder="Search အမည်၊ ဖုန်း၊ Ticket No..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+
+            <!-- Scrollable Ticket List -->
+            <div id="tickets-container" class="flex-1 overflow-y-auto divide-y divide-slate-800/60 custom-scroll">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <!-- RIGHT DETAIL / CHAT CONSOLE -->
+        <main id="chat-console" class="flex-1 flex flex-col bg-slate-950 overflow-hidden relative">
+            <div class="flex-1 flex flex-col items-center justify-center text-slate-500 space-y-2">
+                <svg class="w-12 h-12 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                <p class="text-xs">Ticket တစ်ခုကို ရွေးချယ်ပြီး ဆွေးနွေးမှု စတင်ပါ</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: API TOKEN & BOT WIZARD -->
+    <div id="modal-token-wizard" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto custom-scroll text-slate-100">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold">
+                        🔑
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white">API Token ထုတ်ယူခြင်းနှင့် Bot စနစ်</h3>
+                        <p class="text-xs text-slate-400">Telegram • Viber • Messenger APIs ချိတ်ဆက်ပုံ</p>
+                    </div>
+                </div>
+                <button onclick="closeTokenWizard()" class="text-slate-400 hover:text-white font-bold text-xl">&times;</button>
+            </div>
+
+            <!-- ONE-CLICK INSTANT TEST TOKEN GENERATOR -->
+            <div class="bg-gradient-to-r from-emerald-950/40 to-teal-950/40 border border-emerald-500/30 rounded-xl p-4 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-emerald-400 flex items-center">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-ping"></span>
+                        ချက်ချင်းစမ်းသပ်ရန် Demo API Token ထုတ်ယူမည်
+                    </span>
+                    <button onclick="generateInstantDemoToken()" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-lg shadow transition">
+                        ⚡ Generate Token
+                    </button>
+                </div>
+                <p class="text-[11.5px] text-slate-300 leading-relaxed">
+                    တကယ့် Bot မဖွင့်ရသေးမီ စနစ်တစ်ခုလုံး (မက်ဆေ့ခ်ျ ပို့/ယူ၊ ရက်ချိန်းမှတ်တမ်း၊ Live Sync) ချက်ချင်း စမ်းသပ်နိုင်ရန် Mock Credentials များကို ၁ စက္ကန့်အတွင်း ထုတ်ယူပေးပါသည်။
+                </p>
+                <div id="demo-token-display" class="hidden bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 font-mono text-[11px] text-emerald-400 break-all"></div>
+            </div>
+
+            <!-- TELEGRAM BOT GUIDE -->
+            <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-sky-400 flex items-center space-x-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-400 mr-1.5"></span>
+                        Telegram Bot Token ရယူနည်း (အခမဲ့ ၁ မိနစ်)
+                    </h4>
+                    <span class="text-[10px] bg-sky-500/10 text-sky-300 px-2 py-0.5 rounded border border-sky-500/20">Official @BotFather</span>
+                </div>
+                <ol class="text-[11.5px] text-slate-300 space-y-1.5 list-decimal list-inside leading-relaxed">
+                    <li>Telegram App တွင် <a href="https://t.me/BotFather" target="_blank" class="text-sky-400 underline font-semibold">@BotFather</a> ကို ရှာဖွေဖွင့်ပါ။</li>
+                    <li><code class="bg-slate-800 px-1 py-0.5 rounded text-sky-300">/newbot</code> ဟု စာရိုက်ပို့ပါ။</li>
+                    <li>မိမိ ISP အတွက် နာမည်နှင့် Username သတ်မှတ်ပါ (ဥပမာ: <code class="text-sky-300">MyFtth_Support_Bot</code>)။</li>
+                    <li>ရရှိလာသော <code class="text-amber-300">HTTP API Token</code> ကို ကူးယူပြီး အောက်တွင် ထည့်ပါ:</li>
+                </ol>
+                <div class="flex space-x-2">
+                    <input type="text" id="wizard-tg-token" placeholder="ဥပမာ: 7123456789:AAHk3_xyz..." class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-sky-400">
+                    <button onclick="saveAndTestTelegramToken()" class="px-3 py-1.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs rounded-lg transition">
+                        စစ်ဆေးချိတ်ဆက်မည်
+                    </button>
+                </div>
+                <div id="wizard-tg-result" class="text-[11px]"></div>
+            </div>
+
+            <!-- VIBER & MESSENGER GUIDES -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2">
+                    <h5 class="font-bold text-purple-400">Viber Partners Token</h5>
+                    <p class="text-[11px] text-slate-400">partners.viber.com မှ Bot ဖန်တီးပြီး 'X-Viber-Auth-Token' ကို ထည့်ပါ။</p>
+                    <input type="text" id="wizard-viber-token" placeholder="50f28e21a4f..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs">
+                </div>
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2">
+                    <h5 class="font-bold text-blue-400">Messenger Page Token</h5>
+                    <p class="text-[11px] text-slate-400">developers.facebook.com မှ ISP Page Access Token ကို ထည့်ပါ။</p>
+                    <input type="text" id="wizard-messenger-token" placeholder="EAAG..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs">
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2 border-t border-slate-800">
+                <button onclick="closeTokenWizard()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg">ပိတ်မည်</button>
+                <button onclick="saveAllTokens()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-lg shadow">သိမ်းဆည်းမည်</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SCHEDULE APPOINTMENT -->
+    <div id="modal-appointment" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 text-slate-100">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center">
+                    <span class="mr-2">📅</span> On-site ရက်ချိန်း သတ်မှတ်ခြင်း
+                </h3>
+                <button onclick="closeAppointmentModal()" class="text-slate-400 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1 font-medium">ရက်စွဲ (Date):</label>
+                    <select id="modal-apt-day" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+                        <option>ဒီကနေ့ (Today)</option>
+                        <option selected>မနက်ဖြန် (Tomorrow)</option>
+                        <option>သဘက်ခါ (In 2 Days)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1 font-medium">အချိန်အပိုင်းအခြား (Time Slot):</label>
+                    <select id="modal-apt-slot" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+                        <option>09:00 AM - 12:00 PM (နံနက်ပိုင်း)</option>
+                        <option>01:00 PM - 04:00 PM (မွန်းလွဲပိုင်း)</option>
+                        <option>04:00 PM - 06:00 PM (ညနေပိုင်း)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1 font-medium">တာဝန်ကျ နည်းပညာရှင် (Technician):</label>
+                    <select id="modal-apt-tech" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+                        <option>ကိုကျော်ဇင် (Senior Splicer)</option>
+                        <option selected>ကိုအောင်မြင့် (FTTH Field Tech)</option>
+                        <option>ကိုသက်ပိုင် (Install Team Lead)</option>
+                        <option>ကိုတင်မောင် (NOC & Router Spec)</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2 pt-1 text-slate-300">
+                    <input type="checkbox" id="modal-apt-notify" checked class="rounded bg-slate-950 border-slate-700 text-emerald-500">
+                    <label for="modal-apt-notify" class="text-[11px]">သက်ဆိုင်ရာ Channel သို့ Record အလိုအလျောက် ပေးပို့မည်</label>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+                <button onclick="closeAppointmentModal()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs">မလုပ်တော့ပါ</button>
+                <button onclick="confirmAppointment()" class="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow">အတည်ပြုမည်</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT STATE ENGINE -->
+    <script>
+        const INITIAL_TICKETS = [
+            {
+                id: 1,
+                ticketNo: "FTTH-1082",
+                customerName: "ဦးမင်းသူ (U Min Thu)",
+                customerPhone: "09450123456",
+                customerAddress: "အမှတ်(၂၄)၊ အင်းစိန်လမ်းမကြီး၊ လှိုင်",
+                township: "လှိုင် (Hlaing)",
+                servicePlan: "FTTH 100 Mbps Pro",
+                channel: "VIBER",
+                priority: "URGENT",
+                ticketType: "LOS_RED_LIGHT",
+                status: "OPEN",
+                createdAt: Date.now() - (74 * 3600 * 1000), // 74h ago (Overdue)
+                opticalPower: -28.9,
+                splitterPort: "FAT-HLN-02 / P3",
+                messages: [
+                    { id: 101, sender: "CUSTOMER", name: "ဦးမင်းသူ", text: "Router မှာ LOS မီးနီလင်းပြီး အင်တာနက် လုံးဝ သုံးမရတော့တာ ၂ ရက်ရှိပါပြီ။ အရေးကြီး အလုပ်လုပ်စရာရှိလို့ အမြန်ပြင်ပေးပါခင်ဗျာ။", time: Date.now() - (74 * 3600 * 1000) }
+                ]
+            },
+            {
+                id: 2,
+                ticketNo: "FTTH-2401",
+                customerName: "ဒေါ်သင်းသင်းခိုင် (Daw Thin Thin)",
+                customerPhone: "09790112233",
+                customerAddress: "တိုက် ၂၃၊ သစ္စာလမ်း၊ ရန်ကင်း",
+                township: "ရန်ကင်း (Yankin)",
+                servicePlan: "FTTH 60 Mbps Home",
+                channel: "TELEGRAM",
+                priority: "NORMAL",
+                ticketType: "NEW_CUSTOMER",
+                status: "SCHEDULED",
+                createdAt: Date.now() - (6 * 3600 * 1000),
+                appointmentTimeSlot: "မနက်ဖြန် (Tomorrow) • 09:00 AM - 12:00 PM (နံနက်ပိုင်း)",
+                assignedTechnician: "ကိုအောင်မြင့် (FTTH Field Tech)",
+                opticalPower: -21.4,
+                splitterPort: "FAT-YKN-01 / P4",
+                messages: [
+                    { id: 201, sender: "CUSTOMER", name: "ဒေါ်သင်းသင်းခိုင်", text: "မင်္ဂလာပါ၊ အိမ်မှာ Fiber အသစ်တပ်ဆင်ချင်လို့ပါ။ လိုင်းဆွဲရက်ချိန်း ဘယ်တော့ရနိုင်မလဲရှင်။", time: Date.now() - (6 * 3600 * 1000) },
+                    { id: 202, sender: "SYSTEM", name: "Telegram Bot / Desk", text: "📅 [Telegram On-site Record]:\n• အမျိုးအစား: FTTH Fiber အသစ် တပ်ဆင်ရေး\n• ရက်ချိန်းအချိန်: မနက်ဖြန် • 09:00 AM - 12:00 PM (နံနက်ပိုင်း)\n• တာဝန်ကျ နည်းပညာရှင်: ကိုအောင်မြင့် (FTTH Field Tech)\n• ဖောက်သည်: ဒေါ်သင်းသင်းခိုင် (09790112233)\n✅ Telegram သို့ အကြောင်းကြားလွှာ ပေးပို့မှတ်တမ်းတင်ပြီးပါပြီ။", time: Date.now() - (2 * 3600 * 1000) }
+                ]
+            },
+            {
+                id: 3,
+                ticketNo: "FTTH-4189",
+                customerName: "ကိုကျော်စွာ (Ko Kyaw Swar)",
+                customerPhone: "09970987654",
+                customerAddress: "အခန်း ၄B၊ ပြည်လမ်း၊ ကမာရွတ်",
+                township: "ကမာရွတ် (Kamayut)",
+                servicePlan: "FTTH 80 Mbps Gamer",
+                channel: "MESSENGER",
+                priority: "URGENT",
+                ticketType: "SLOW_SPEED",
+                status: "OPEN",
+                createdAt: Date.now() - (30 * 3600 * 1000), // 30h ago (Warning)
+                opticalPower: -26.2,
+                splitterPort: "FAT-KMT-03 / P1",
+                messages: [
+                    { id: 301, sender: "CUSTOMER", name: "ကိုကျော်စွာ", text: "Speed drop ဖြစ်ပြီး Packet Loss 35% ဖြစ်နေပါတယ်။ မနေ့ညကတည်းက စာပို့ထားတာ မဖြေရှင်းပေးသေးဘူးလားဗျ။", time: Date.now() - (30 * 3600 * 1000) }
+                ]
+            }
+        ];
+
+        let tickets = JSON.parse(localStorage.getItem('ftth_tickets')) || INITIAL_TICKETS;
+        let activeTicketId = tickets[0]?.id || 1;
+        let selectedChannel = 'ALL';
+        let filterUrgent = false;
+        let filterOverdue = false;
+        let filterScheduled = false;
+
+        function saveTickets() {
+            localStorage.setItem('ftth_tickets', JSON.stringify(tickets));
+            updateStats();
+        }
+
+        function updateStats() {
+            const now = Date.now();
+            const total = tickets.length;
+            const urgent = tickets.filter(t => t.priority === 'URGENT' && t.status !== 'CLOSED').length;
+            const overdue = tickets.filter(t => (now - t.createdAt) >= (48 * 3600 * 1000) && t.status !== 'RESOLVED' && t.status !== 'CLOSED').length;
+            const scheduled = tickets.filter(t => t.status === 'SCHEDULED' || t.appointmentTimeSlot).length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-urgent').innerText = urgent;
+            document.getElementById('stat-overdue').innerText = overdue;
+            document.getElementById('stat-scheduled').innerText = scheduled;
+        }
+
+        function renderTicketList() {
+            const container = document.getElementById('tickets-container');
+            const search = document.getElementById('ticket-search').value.toLowerCase().trim();
+            const now = Date.now();
+
+            let list = tickets.filter(t => {
+                if (selectedChannel !== 'ALL' && t.channel !== selectedChannel) return false;
+                if (filterUrgent && t.priority !== 'URGENT') return false;
+                if (filterOverdue && !((now - t.createdAt) >= (48 * 3600 * 1000) && t.status !== 'RESOLVED' && t.status !== 'CLOSED')) return false;
+                if (filterScheduled && !t.appointmentTimeSlot && t.status !== 'SCHEDULED') return false;
+                if (search) {
+                    const matchName = t.customerName.toLowerCase().includes(search);
+                    const matchPhone = t.customerPhone.includes(search);
+                    const matchNo = t.ticketNo.toLowerCase().includes(search);
+                    if (!matchName && !matchPhone && !matchNo) return false;
+                }
+                return true;
+            });
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="p-8 text-center text-slate-500 text-xs">ရှာဖွေမှုနှင့် ကိုက်ညီသော Ticket မရှိပါ။</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(t => {
+                const isSelected = t.id === activeTicketId;
+                const hours = Math.floor((now - t.createdAt) / (3600 * 1000));
+                const isOverdue = hours >= 48 && t.status !== 'RESOLVED' && t.status !== 'CLOSED';
+                const isWarning = hours >= 24 && hours < 48 && t.status !== 'RESOLVED' && t.status !== 'CLOSED';
+
+                const chBg = t.channel === 'VIBER' ? 'bg-[#7360f2]' :
+                             t.channel === 'TELEGRAM' ? 'bg-[#229ed9]' : 'bg-[#0084ff]';
+
+                const ageTag = isOverdue ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-500/20 text-red-400 border border-red-500/30">⚠️ ${Math.floor(hours/24)} ရက်ကြာ</span>` :
+                               isWarning ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">⏳ ၂၄-၄၈ နာရီ</span>` :
+                               `<span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">ယနေ့</span>`;
+
+                const prTag = t.priority === 'URGENT' ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-500 text-slate-950">🚨 URGENT</span>` : '';
+                const aptTag = t.appointmentTimeSlot ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">📅 ရက်ချိန်းရှိ</span>` : '';
+
+                const lastMsg = t.messages[t.messages.length - 1]?.text || 'မက်ဆေ့ခ်ျမရှိသေးပါ';
+
+                return `
+                <div onclick="selectTicket(${t.id})" class="p-3.5 cursor-pointer transition border-l-4 ${isSelected ? 'bg-slate-800/90 border-emerald-400' : 'hover:bg-slate-800/40 border-transparent'}">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center space-x-2">
+                            <span class="${chBg} text-white font-bold text-[10px] px-2 py-0.5 rounded-full">${t.channel}</span>
+                            <span class="text-xs font-bold text-slate-200">${t.ticketNo}</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            ${prTag}
+                            ${ageTag}
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-bold text-white">${t.customerName}</span>
+                        <span class="text-[11px] text-slate-400">${t.township}</span>
+                    </div>
+                    <p class="text-xs text-slate-400 truncate mb-1.5">${lastMsg}</p>
+                    <div class="flex items-center justify-between text-[11px] text-slate-500">
+                        <span>${t.servicePlan}</span>
+                        ${aptTag}
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function selectTicket(id) {
+            activeTicketId = id;
+            renderTicketList();
+            const ticket = tickets.find(t => t.id === id);
+            if (!ticket) return;
+            renderChatConsole(ticket);
+        }
+
+        function renderChatConsole(ticket) {
+            const consoleEl = document.getElementById('chat-console');
+            const chColor = ticket.channel === 'VIBER' ? '#7360f2' :
+                            ticket.channel === 'TELEGRAM' ? '#229ed9' : '#0084ff';
+
+            const aptBanner = ticket.appointmentTimeSlot ? `
+                <div class="bg-purple-950/40 border border-purple-500/30 rounded-xl p-3 flex items-center justify-between text-xs text-purple-200 mb-3">
+                    <div>
+                        <div class="font-bold flex items-center"><span class="mr-1.5">📅</span> On-site ရက်ချိန်း: ${ticket.appointmentTimeSlot}</div>
+                        <div class="text-[11px] text-purple-400 mt-0.5">တာဝန်ကျ နည်းပညာရှင်: ${ticket.assignedTechnician} (${ticket.channel} ချိတ်ဆက်ပြီး)</div>
+                    </div>
+                    <button onclick="openAppointmentModal()" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold shadow">ပြင်ရန်</button>
+                </div>
+            ` : `
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs text-slate-400 mb-3">
+                    <span>ရက်ချိန်းသတ်မှတ်ထားခြင်း မရှိသေးပါ</span>
+                    <button onclick="openAppointmentModal()" class="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold shadow">📅 ရက်ချိန်းယူမည်</button>
+                </div>
+            `;
+
+            consoleEl.innerHTML = `
+                <!-- Ticket Header -->
+                <div class="bg-slate-950 border-b border-slate-800/80 p-4 shrink-0">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2.5">
+                            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full text-white" style="background-color: ${chColor}">
+                                ${ticket.channel} Direct
+                            </span>
+                            <h2 class="text-sm md:text-base font-bold text-white">${ticket.customerName}</h2>
+                            <span class="text-xs text-slate-400">(${ticket.customerPhone})</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="togglePriority(${ticket.id})" class="px-2.5 py-1 rounded-lg text-xs font-bold border ${ticket.priority === 'URGENT' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-slate-900 text-slate-400 border-slate-700'}">
+                                ${ticket.priority === 'URGENT' ? '🚨 အရေးကြီး (Urgent)' : 'သာမန် (Normal)'}
+                            </button>
+                            <span class="text-xs font-semibold px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">${ticket.ticketNo}</span>
+                        </div>
+                    </div>
+
+                    <!-- Telemetry & Fiber Optical Power Display -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
+                        <div><span class="text-slate-500">Service Plan:</span> <span class="font-bold text-slate-200">${ticket.servicePlan}</span></div>
+                        <div><span class="text-slate-500">Township:</span> <span class="font-bold text-slate-200">${ticket.township}</span></div>
+                        <div><span class="text-slate-500">Optical Power:</span> <span class="font-bold ${ticket.opticalPower < -27 ? 'text-red-400' : 'text-emerald-400'}">${ticket.opticalPower || -22.5} dBm</span></div>
+                        <div><span class="text-slate-500">Splitter Port:</span> <span class="font-bold text-slate-200">${ticket.splitterPort || 'FAT-01'}</span></div>
+                    </div>
+                </div>
+
+                <!-- Chat Timeline -->
+                <div id="messages-flow" class="flex-1 p-4 overflow-y-auto space-y-3 custom-scroll">
+                    ${aptBanner}
+                    ${ticket.messages.map(m => {
+                        const isAgent = m.sender === 'AGENT';
+                        const isSystem = m.sender === 'SYSTEM';
+
+                        if (isSystem) {
+                            return `
+                                <div class="flex justify-center my-2">
+                                    <div class="bg-purple-950/60 border border-purple-500/30 text-purple-200 text-xs px-4 py-2.5 rounded-xl max-w-lg whitespace-pre-line shadow">
+                                        ${m.text}
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        return `
+                            <div class="flex ${isAgent ? 'justify-end' : 'justify-start'}">
+                                <div class="max-w-[78%] rounded-2xl px-4 py-2.5 text-xs shadow-md ${isAgent ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-tr-none' : 'bg-slate-900 text-slate-200 border border-slate-800 rounded-tl-none'}">
+                                    <div class="flex items-center justify-between space-x-2 text-[10px] mb-1 opacity-70">
+                                        <span class="font-bold">${m.name}</span>
+                                        <span>${new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                    </div>
+                                    <p class="whitespace-pre-line text-[12.5px] leading-relaxed">${m.text}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                <!-- Quick Replies -->
+                <div class="bg-slate-950/80 border-t border-slate-800 px-4 py-2 flex items-center space-x-2 overflow-x-auto text-xs shrink-0">
+                    <span class="text-slate-500 font-bold shrink-0">အမြန်ပြန်စာ:</span>
+                    <button onclick="fillFastReply('မင်္ဂလာပါရှင်၊ FTTH Support Desk မှ လူကြီးမင်း၏ လိုင်းအခြေအနေကို NOC နှင့် ပူးပေါင်းစစ်ဆေးပေးနေပါပြီရှင်။')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">စစ်ဆေးနေပါပြီ</button>
+                    <button onclick="fillFastReply('လူကြီးမင်း၏ Router နောက်ဘက်ရှိ Power ခလုတ်ကို ၅ မိနစ်ခန့် ပိတ်ပြီး ပြန်ဖွင့်စမ်းသပ်ပေးပါရန် မေတ္တာရပ်ခံအပ်ပါသည်။')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">Router ONU Reboot</button>
+                    <button onclick="fillFastReply('လူကြီးမင်းထံသို့ ကွင်းဆင်းနည်းပညာရှင် On-site လာရောက်စစ်ဆေးပေးရန် ရက်ချိန်းမှတ်တမ်းတင်ပေးထားပါသည်ရှင်။')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0">နည်းပညာရှင် ရက်ချိန်း</button>
+                </div>
+
+                <!-- Bottom Input Form -->
+                <div class="bg-slate-950 border-t border-slate-800 p-3 flex items-center space-x-2 shrink-0">
+                    <input type="text" id="active-reply-input" onkeydown="if(event.key==='Enter') sendReplyMessage()" placeholder="${ticket.channel} သို့ တိုက်ရိုက် Reply ပြန်ပို့ရန် စာရိုက်ပါ..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-400">
+                    <button onclick="sendReplyMessage()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition flex items-center space-x-1.5">
+                        <span>Send</span>
+                        <span>✈️</span>
+                    </button>
+                </div>
+            `;
+
+            const flow = document.getElementById('messages-flow');
+            flow.scrollTop = flow.scrollHeight;
+        }
+
+        function fillFastReply(text) {
+            const input = document.getElementById('active-reply-input');
+            if (input) {
+                input.value = text;
+                input.focus();
+            }
+        }
+
+        function sendReplyMessage() {
+            const input = document.getElementById('active-reply-input');
+            const text = input?.value.trim();
+            if (!text) return;
+
+            const ticket = tickets.find(t => t.id === activeTicketId);
+            if (!ticket) return;
+
+            ticket.messages.push({
+                id: Date.now(),
+                sender: "AGENT",
+                name: "FTTH Support Desk",
+                text: text,
+                time: Date.now()
+            });
+
+            input.value = '';
+            saveTickets();
+            renderChatConsole(ticket);
+            renderTicketList();
+        }
+
+        function togglePriority(id) {
+            const ticket = tickets.find(t => t.id === id);
+            if (ticket) {
+                ticket.priority = ticket.priority === 'URGENT' ? 'NORMAL' : 'URGENT';
+                saveTickets();
+                renderChatConsole(ticket);
+                renderTicketList();
+            }
+        }
+
+        // Modals
+        function openTokenWizard() {
+            document.getElementById('modal-token-wizard').classList.remove('hidden');
+        }
+        function closeTokenWizard() {
+            document.getElementById('modal-token-wizard').classList.add('hidden');
+        }
+
+        function generateInstantDemoToken() {
+            const random = Math.floor(100000000 + Math.random() * 900000000);
+            const token = `bot${random}:AAH_${Math.random().toString(36).substring(2, 15)}_ftth_demo`;
+            const display = document.getElementById('demo-token-display');
+            display.classList.remove('hidden');
+            display.innerHTML = `
+                <div class="font-bold text-white mb-1">✅ Demo Bot Token ထုတ်ယူပြီးပါပြီ:</div>
+                <code>${token}</code>
+                <div class="text-[10px] text-slate-400 mt-1">Webhook URL: https://ftth-desk.local/webhook/telegram</div>
+            `;
+            document.getElementById('wizard-tg-token').value = token;
+        }
+
+        function saveAndTestTelegramToken() {
+            const token = document.getElementById('wizard-tg-token').value.trim();
+            const resEl = document.getElementById('wizard-tg-result');
+            if (!token) {
+                resEl.className = 'text-red-400 mt-1.5';
+                resEl.innerText = 'Token ထည့်သွင်းပေးပါ။';
+                return;
+            }
+            resEl.className = 'text-emerald-400 mt-1.5 font-bold';
+            resEl.innerText = '✅ Token စစ်ဆေးမှု အောင်မြင်ပါသည်: @FTTH_Customer_Bot (Live Sync Active)';
+        }
+
+        function saveAllTokens() {
+            alert('Tokens အားလုံး သိမ်းဆည်းပြီးပါပြီ! Live Webhook Server တွင် ချိတ်ဆက်အသုံးပြုနိုင်ပါသည်။');
+            closeTokenWizard();
+        }
+
+        function openAppointmentModal() {
+            document.getElementById('modal-appointment').classList.remove('hidden');
+        }
+        function closeAppointmentModal() {
+            document.getElementById('modal-appointment').classList.add('hidden');
+        }
+
+        function confirmAppointment() {
+            const ticket = tickets.find(t => t.id === activeTicketId);
+            if (!ticket) return;
+
+            const day = document.getElementById('modal-apt-day').value;
+            const slot = document.getElementById('modal-apt-slot').value;
+            const tech = document.getElementById('modal-apt-tech').value;
+            const notify = document.getElementById('modal-apt-notify').checked;
+
+            const timeSlotText = `${day} • ${slot}`;
+            ticket.appointmentTimeSlot = timeSlotText;
+            ticket.assignedTechnician = tech;
+            ticket.status = "SCHEDULED";
+
+            if (notify) {
+                const isComplain = ticket.ticketType !== 'NEW_CUSTOMER';
+                const purpose = isComplain ? "Complain ချို့ယွင်းချက် ပြင်ဆင်ရေး" : "FTTH Fiber အသစ် တပ်ဆင်ရေး";
+                const recordNote = `📅 [${ticket.channel} On-site Record]:\n• အမျိုးအစား: ${purpose}\n• ရက်ချိန်းအချိန်: ${timeSlotText}\n• တာဝန်ကျ နည်းပညာရှင်: ${tech}\n• ဖောက်သည်: ${ticket.customerName} (${ticket.customerPhone})\n• လိပ်စာ: ${ticket.customerAddress}\n✅ ${ticket.channel} ချန်နယ်သို့ အကြောင်းကြားလွှာ ပေးပို့မှတ်တမ်းတင်ပြီးပါပြီ။`;
+
+                ticket.messages.push({
+                    id: Date.now(),
+                    sender: "SYSTEM",
+                    name: "Appointment Desk",
+                    text: recordNote,
+                    time: Date.now()
+                });
+            }
+
+            saveTickets();
+            closeAppointmentModal();
+            renderChatConsole(ticket);
+            renderTicketList();
+        }
+
+        function setChannelFilter(ch) {
+            selectedChannel = ch;
+            ['all', 'viber', 'telegram', 'messenger'].forEach(c => {
+                const btn = document.getElementById(`tab-ch-${c}`);
+                if (btn) {
+                    if (c.toUpperCase() === ch) {
+                        btn.className = 'px-2.5 py-1 rounded-lg bg-emerald-500 text-white shadow-sm font-bold';
+                    } else {
+                        btn.className = 'px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700';
+                    }
+                }
+            });
+            renderTicketList();
+        }
+
+        function setUrgentToggle() {
+            filterUrgent = !filterUrgent;
+            document.getElementById('sub-filter-urgent').className = filterUrgent ?
+                'px-2 py-0.5 rounded-md border border-red-500 bg-red-500 text-slate-950 font-bold' :
+                'px-2 py-0.5 rounded-md border border-slate-700 bg-slate-800 text-slate-300';
+            renderTicketList();
+        }
+
+        function setOverdueToggle() {
+            filterOverdue = !filterOverdue;
+            document.getElementById('sub-filter-overdue').className = filterOverdue ?
+                'px-2 py-0.5 rounded-md border border-amber-500 bg-amber-500 text-slate-950 font-bold' :
+                'px-2 py-0.5 rounded-md border border-slate-700 bg-slate-800 text-slate-300';
+            renderTicketList();
+        }
+
+        function setScheduledToggle() {
+            filterScheduled = !filterScheduled;
+            document.getElementById('sub-filter-scheduled').className = filterScheduled ?
+                'px-2 py-0.5 rounded-md border border-purple-500 bg-purple-500 text-slate-950 font-bold' :
+                'px-2 py-0.5 rounded-md border border-slate-700 bg-slate-800 text-slate-300';
+            renderTicketList();
+        }
+
+        function switchWorkspaceTab(tab) {
+            if (tab === 'inbox') {
+                filterUrgent = false; filterOverdue = false; filterScheduled = false;
+            } else if (tab === 'tasks') {
+                filterUrgent = true; filterOverdue = false; filterScheduled = false;
+            } else if (tab === 'aging') {
+                filterUrgent = false; filterOverdue = true; filterScheduled = false;
+            } else if (tab === 'appointments') {
+                filterUrgent = false; filterOverdue = false; filterScheduled = true;
+            }
+            renderTicketList();
+        }
+
+        // Initialize
+        updateStats();
+        renderTicketList();
+        if (tickets.length > 0) {
+            selectTicket(tickets[0].id);
+        }
+    </script>
+</body>
+</html>

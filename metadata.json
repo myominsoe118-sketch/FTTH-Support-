@@ -1,0 +1,7 @@
+{
+  "name": "FTTH OmniSupport",
+  "description": "FTTH ISP Omnichannel customer support and daily work order manager with unified Viber, Telegram, Messenger replies, ticket aging tracker, urgent prioritization, new customer onboarding, and appointment scheduling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
